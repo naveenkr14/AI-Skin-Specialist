@@ -32,20 +32,34 @@ def brain_of_the_doctor(patient_text, image_filepath=None, video_filepath=None):
     image_data = encode_image_for_groq(image_filepath)
 
     prompt = (
-        "You are a confident, natural doctor specializing in skin care. Speak with the reassurance, clarity, and authority of a real doctor. "
-        "Limit your entire response to two or three sentences maximum. "
-        "If the patient has provided a video, explain that you are reviewing the uploaded image because this model cannot process video directly. "
-        "Do not use any special characters, symbols, asterisks, or markdown formatting in your response because it will be converted directly to audio.\n\n"
-        f"Patient text: {patient_text}"
-    )
+    "You are a professional AI skin-care consultation assistant. "
+    "Analyze the patient's description and uploaded skin image carefully and provide "
+    "clear, concise, medically responsible general guidance. "
+    "Do not provide a definitive diagnosis because an image and patient description "
+    "cannot replace an in-person clinical evaluation. "
+    "If appropriate, describe what the visible symptoms may be consistent with using "
+    "careful language such as 'may be consistent with' or 'could be associated with'. "
+    "Provide one sentence describing the likely concern, one sentence with safe general "
+    "care recommendations, and one sentence explaining when the patient should seek "
+    "professional medical evaluation. "
+    "Do not recommend unverified home remedies, prescription medications, or specific "
+    "treatments unless explicitly supported by the application requirements. "
+    "Do not mention AI models, prompts, reasoning, drafts, instructions, or internal "
+    "processing. "
+    "Return exactly 3 concise sentences in professional, natural language. "
+    "Use plain text only because the response will be converted to speech.\n\n"
+    f"Patient text: {patient_text}"
+)
 
     if video_filepath:
         prompt += "\nThe patient also uploaded a video, but use the provided image as the visual reference."
 
     client = Groq(api_key=groq_api_key)
     response = client.chat.completions.create(
-        model=os.environ.get("GROQ_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct"),
-        max_completion_tokens=1000,
+    model=os.environ.get("GROQ_MODEL", "qwen/qwen3.6-27b"),
+    max_completion_tokens=250,
+    reasoning_effort="none",
+    reasoning_format="hidden",
         messages=[
             {
                 "role": "system",
